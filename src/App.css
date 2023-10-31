@@ -1,0 +1,16 @@
+body{
+    margin: 0px;
+    background-color:  var(--primary-color);
+    color: white;
+}
+
+.employee-div{
+    display: flex;
+    /* border: 1px solid red; */
+    justify-content: space-around;
+}
+
+:root{
+    --primary-color: #001f3f;
+    --secondary-color: #c5e1a5;
+}
