@@ -1,7 +1,9 @@
 // EmployeeForm.js
 import './EmployeeForm.css'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import Papa from 'papaparse';
 
 function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}) {
   // Define state variables to store employee data
@@ -30,6 +32,7 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
     console.log('submitted')
     e.preventDefault();
     // Store the employeeData state in your application or display it elsewhere as needed
+    // console.log(employeeData)
     const newEmployees = [...employees, employeeData]
     setEmployees(newEmployees)
     
@@ -44,6 +47,49 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
     })
     // console.log(employees)
   };
+
+// Function to handle file input change
+  function handleFileInputChange(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      // Create a FileReader to read the file
+      const reader = new FileReader();
+
+      // Define the onload event handler for the FileReader
+      reader.onload = function (e) {
+        const csvData = e.target.result;
+
+        // Parse the CSV data using papaparse
+        Papa.parse(csvData, {
+          header: true, // Treat the first row as headers
+          complete: function (result) {
+            if (result.data) {
+              // Iterate through each row and log it to the console
+              const newEmployees = [...employees]
+              result.data.forEach((row, index) => {
+                if(index!==result.data.length-1){
+                  // console.log(`Row ${index + 1}:`, row);
+                  newEmployees.push(row)
+                  setEmployees(newEmployees)
+                }
+                // You can process the row data here
+              });
+            }
+          },
+        });
+      };
+
+      // Read the file as text
+      reader.readAsText(file);
+    }
+  }
+
+  // Attach the event listener to your file input element
+  useEffect(() => {
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', handleFileInputChange);
+  })
 
   return (
     <div className='form-container'>
@@ -134,6 +180,8 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
           />
         </div>
         <button type="submit" className='submit-btn'>Add</button>
+        <h3>Add Through CSV File</h3>
+        <input type='file' accept='.csv' className='submit-btn file-input' id='fileInput'/>
       </form>
     </div>
   );

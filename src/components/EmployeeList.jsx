@@ -21,7 +21,7 @@ function EmployeeList({ employeeDataArray }) {
           <h3>{department}</h3>
           <ul>
             {employeesByDepartment[department].map((employee, index) => {
-                console.log(employee)
+                {/* console.log(employee) */}
                 return (
               <li key={index}><p>{employee.fullName}</p><p>({employee.baseSalary})</p><button>pay</button></li>
             )})}

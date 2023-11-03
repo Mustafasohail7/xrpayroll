@@ -36,8 +36,13 @@
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    margin-bottom: 1em;
 }
 
 .submit-btn:hover{
     background-color: var(--secondary-color);
+}
+
+.file-input{
+    height: auto;
 }
