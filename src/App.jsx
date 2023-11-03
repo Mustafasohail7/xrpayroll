@@ -1,5 +1,6 @@
 import EmployeeForm from './components/EmployeeForm'
-import EmployeeList from './components/EmployeeList';
+import EmployeeList from './components/EmployeeList'
+import Balance from './components/Balance'
 import { useState } from 'react';
 import './App.css'
 
@@ -31,6 +32,7 @@ function App() {
         <EmployeeForm departmentOptions={departmentOptions} currencyOptions={currencyOptions} 
         employees={employees} setEmployees={setEmployees}
         />
+        <Balance employees={employees}/>
         <EmployeeList employeeDataArray={employees}/>
       </div>
     </>
