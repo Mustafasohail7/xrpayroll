@@ -23,17 +23,20 @@ function App() {
   ]
 
   const [employees, setEmployees] = useState([])
+  const [wallet,setWallet] = useState({
+    address: 'rNKGQUs3QqqnFnUDGkWEgaXAiT6iwQkBjg',
+    secret: 'sEd7VBpaUz8MtuzX92VvPhN4pGBbxKa',
+    balance: ''
+  })
   
-  
-
   return (
     <>
       <div className='employee-div'>
         <EmployeeForm departmentOptions={departmentOptions} currencyOptions={currencyOptions} 
         employees={employees} setEmployees={setEmployees}
         />
-        <Balance employees={employees}/>
-        <EmployeeList employeeDataArray={employees}/>
+        <Balance wallet={wallet} setWallet={setWallet}/>
+        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet}/>
       </div>
     </>
   )

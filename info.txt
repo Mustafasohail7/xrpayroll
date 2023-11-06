@@ -1,0 +1,9 @@
+address:rNKGQUs3QqqnFnUDGkWEgaXAiT6iwQkBjg
+seed:sEd7VBpaUz8MtuzX92VvPhN4pGBbxKa
+
+
+
+john.seed=sEdSSGVepeQLCowA7juCkYSkGT4nSZo
+jane.seed=sEd7kbjASCKPrJ9cpSGfTgNt9F8ZZ5X
+austin.seed=sEdSRHzTzreB4E4XPfCjQcb2z28Dv2U
+jenny.seed=sEd76cMaH9cuCRgm7uSQuCFNnTt81h9
