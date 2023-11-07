@@ -28,6 +28,22 @@ function App() {
     secret: 'sEd7VBpaUz8MtuzX92VvPhN4pGBbxKa',
     balance: ''
   })
+
+  const updateBalance = async () => {
+    const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
+    await client.connect()
+    const response = await client.request({
+      "command": "account_info",
+      "account": wallet.address,
+      "ledger_index": "validated"
+    })
+    const test_balance = response.result.account_data.Balance
+    setWallet({
+      ...wallet,
+      balance: test_balance
+    })
+    await client.disconnect()
+  }
   
   return (
     <>
@@ -35,8 +51,8 @@ function App() {
         <EmployeeForm departmentOptions={departmentOptions} currencyOptions={currencyOptions} 
         employees={employees} setEmployees={setEmployees}
         />
-        <Balance wallet={wallet} setWallet={setWallet}/>
-        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet}/>
+        <Balance wallet={wallet} setWallet={setWallet} updateBalance={updateBalance}/>
+        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet} updateBalance={updateBalance}/>
       </div>
     </>
   )

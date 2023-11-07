@@ -1,7 +1,7 @@
 import './Balance.css'
 import { useState } from 'react'
 
-const Balance = ({wallet,setWallet}) => {
+const Balance = ({wallet,setWallet,updateBalance}) => {
 
     const [seed,setSeed] = useState('')
 
@@ -18,22 +18,6 @@ const Balance = ({wallet,setWallet}) => {
           balance: test_wallet.balance
         })
         console.log(fund_result)
-        await client.disconnect()
-    }
-
-    const checkBalance = async () => {
-        const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
-        await client.connect()
-        const response = await client.request({
-          "command": "account_info",
-          "account": wallet.address,
-          "ledger_index": "validated"
-        })
-        const test_balance = response.result.account_data.Balance
-        setWallet({
-          ...wallet,
-          balance: test_balance
-        })
         await client.disconnect()
     }
 
@@ -67,7 +51,7 @@ const Balance = ({wallet,setWallet}) => {
             })}
             className='wallet-address-input'
         />
-        <button onClick={checkBalance} className='balance-btn'>Check Balance</button>
+        <button onClick={updateBalance} className='balance-btn'>Check Balance</button>
       </div>
       <p className='balance-text'>Balance: {displayXrp()}</p>
       <p>To obtain a wallet with more XRP, <a href='https://xrpl.org/xrp-testnet-faucet.html' target='_blank' className='faucet-link'>go here</a></p>
