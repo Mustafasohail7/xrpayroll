@@ -1,6 +1,6 @@
 import './EmployeeList.css'
 
-function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance}) {
+function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance,setMessage}) {
   // Group employees by department
   const employeesByDepartment = employeeDataArray.reduce((acc, employee) => {
     const { department } = employee;
@@ -16,6 +16,7 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance}) {
     const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
     await client.connect()
     const company_wallet = xrpl.Wallet.fromSeed(wallet.secret)
+    setMessage('paying employee')
     const prepared = await client.autofill({
       "TransactionType": "Payment",
       "Account": wallet.address,
@@ -25,12 +26,14 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance}) {
     const signed = company_wallet.sign(prepared)
     const tx = await client.submitAndWait(signed.tx_blob)
     updateBalance()
+    setMessage('')
     await client.disconnect()
   }
 
   const handleDepartmentPay = async (department) => {
     const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
     await client.connect()
+    setMessage('paying department')
     const company_wallet = xrpl.Wallet.fromSeed(wallet.secret)
     console.log('paying department',department)
     for(var i=0;i<employeesByDepartment[department].length;i++){
@@ -45,6 +48,7 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance}) {
       updateBalance()
     }
     console.log('done')
+    setMessage('')
     await client.disconnect()
   }
 

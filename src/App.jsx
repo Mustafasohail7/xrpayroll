@@ -1,6 +1,7 @@
 import EmployeeForm from './components/EmployeeForm'
 import EmployeeList from './components/EmployeeList'
 import Balance from './components/Balance'
+import Notification from './components/Notification'
 import { useState } from 'react';
 import './App.css'
 
@@ -22,6 +23,7 @@ function App() {
     'XRP',
   ]
 
+  const [message,setMessage] = useState('checking')
   const [employees, setEmployees] = useState([])
   const [wallet,setWallet] = useState({
     address: 'rNKGQUs3QqqnFnUDGkWEgaXAiT6iwQkBjg',
@@ -32,6 +34,7 @@ function App() {
   const updateBalance = async () => {
     const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
     await client.connect()
+    setMessage('updating balance')
     const response = await client.request({
       "command": "account_info",
       "account": wallet.address,
@@ -42,6 +45,7 @@ function App() {
       ...wallet,
       balance: test_balance
     })
+    setMessage('')
     await client.disconnect()
   }
   
@@ -52,7 +56,8 @@ function App() {
         employees={employees} setEmployees={setEmployees}
         />
         <Balance wallet={wallet} setWallet={setWallet} updateBalance={updateBalance}/>
-        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet} updateBalance={updateBalance}/>
+        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet} updateBalance={updateBalance} setMessage={setMessage}/>
+        <Notification message={message}/>
       </div>
     </>
   )
