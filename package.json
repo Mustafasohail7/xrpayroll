@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "papaparse": "^5.4.1",
     "@nice-xrpl/react-xrpl": "^0.0.30",
+    "papaparse": "^5.4.1",
     "react": "^18.2.0",
+    "react-datepicker": "^4.21.0",
     "react-dom": "^18.2.0",
     "xrpl": "^2.13.0"
   },

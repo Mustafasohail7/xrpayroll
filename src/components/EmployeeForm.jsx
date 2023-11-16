@@ -15,6 +15,7 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
     department: '',
     emailAddress: '',
     xrpWalletAddress: '',
+    salary: []
   });
 
   // Handle form input changes
@@ -44,6 +45,7 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
         department: '',
         emailAddress: '',
         xrpWalletAddress: '',
+        salary: [],
     })
     // console.log(employees)
   };
@@ -68,9 +70,11 @@ function EmployeeForm({departmentOptions,currencyOptions,employees,setEmployees}
               // Iterate through each row and log it to the console
               const newEmployees = [...employees]
               result.data.forEach((row, index) => {
+                var new_row = {...row}
+                new_row.salary = []
                 if(index!==result.data.length-1){
                   // console.log(`Row ${index + 1}:`, row);
-                  newEmployees.push(row)
+                  newEmployees.push(new_row)
                   setEmployees(newEmployees)
                 }
                 // You can process the row data here

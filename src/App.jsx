@@ -23,13 +23,14 @@ function App() {
     'XRP',
   ]
 
-  const [message,setMessage] = useState('checking')
+  const [message,setMessage] = useState('')
   const [employees, setEmployees] = useState([])
   const [wallet,setWallet] = useState({
     address: 'rNKGQUs3QqqnFnUDGkWEgaXAiT6iwQkBjg',
     secret: 'sEd7VBpaUz8MtuzX92VvPhN4pGBbxKa',
     balance: ''
   })
+  const [date,setDate] = useState('')
 
   const updateBalance = async () => {
     const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
@@ -56,7 +57,7 @@ function App() {
         employees={employees} setEmployees={setEmployees}
         />
         <Balance wallet={wallet} setWallet={setWallet} updateBalance={updateBalance}/>
-        <EmployeeList employeeDataArray={employees} wallet={wallet} setWallet={setWallet} updateBalance={updateBalance} setMessage={setMessage}/>
+        <EmployeeList employeeDataArray={employees} setEmployee={setEmployees} wallet={wallet} setWallet={setWallet} updateBalance={updateBalance} setMessage={setMessage}/>
         <Notification message={message}/>
       </div>
     </>

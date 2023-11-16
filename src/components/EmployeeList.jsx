@@ -1,6 +1,19 @@
 import './EmployeeList.css'
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance,setMessage}) {
+import { useState } from 'react';
+
+function EmployeeList({ employeeDataArray,setEmployee,wallet,setWallet,updateBalance,setMessage}) {
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [month,setMonth] = useState((selectedDate.toLocaleString('default', { month: 'long' }))+'-'+selectedDate.getFullYear())
+
+  const handleDateChange = date => {
+    setSelectedDate(date);
+    setMonth((date.toLocaleString('default', { month: 'long' }))+'-'+date.getFullYear())
+  };
+
   // Group employees by department
   const employeesByDepartment = employeeDataArray.reduce((acc, employee) => {
     const { department } = employee;
@@ -25,6 +38,15 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance,setMess
     })
     const signed = company_wallet.sign(prepared)
     const tx = await client.submitAndWait(signed.tx_blob)
+    setEmployee(employeeDataArray.map((employee) => {
+      if(employee.xrpWalletAddress === destination){
+        return {
+          ...employee,
+          salary: [...employee.salary,month]
+        }
+      }
+      return employee
+    }))
     updateBalance()
     setMessage('')
     await client.disconnect()
@@ -52,8 +74,18 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance,setMess
     await client.disconnect()
   }
 
+  console.log(month)
+  console.log(employeeDataArray)
+
   return (
     <div className='employeeList-container'>
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        dateFormat="MMMM yyyy"
+        showMonthYearPicker
+        className='date-picker'
+      />
       <h2>Employee List by Department</h2>
       {Object.keys(employeesByDepartment).map((department) => (
         <div key={department} className='employeeList'>
@@ -65,7 +97,9 @@ function EmployeeList({ employeeDataArray,wallet,setWallet,updateBalance,setMess
             {employeesByDepartment[department].map((employee, index) => {
                 {/* console.log(employee) */}
                 return (
-              <li key={index}><p>{employee.fullName}</p><p>({employee.baseSalary})</p>
+              <li key={index}><p>{employee.fullName}</p>
+              {employee.salary.includes(month) ? <p>paid</p> : <p>({employee.baseSalary})</p>}
+              {/* <p>({employee.baseSalary})</p> */}
               <button onClick={()=>handleEmployeePay(employee.xrpWalletAddress)}>pay</button></li>
             )})}
           </ul>
