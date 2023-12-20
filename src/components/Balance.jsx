@@ -6,7 +6,7 @@ const Balance = ({wallet,setWallet,updateBalance}) => {
     const [seed,setSeed] = useState('')
 
     const handleAccountCreation = async () => {
-        console.log('clicked')
+        // console.log('clicked')
         // Create a wallet and fund it with the Testnet faucet:
         const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
         await client.connect()
@@ -17,7 +17,7 @@ const Balance = ({wallet,setWallet,updateBalance}) => {
           address: test_wallet.address,
           balance: test_wallet.balance
         })
-        console.log(fund_result)
+        // console.log(fund_result)
         await client.disconnect()
     }
 
@@ -27,11 +27,11 @@ const Balance = ({wallet,setWallet,updateBalance}) => {
           minimumFractionDigits: 0, // Don't show decimal places
           maximumFractionDigits: 6, // Show up to 6 decimal places
         }) + " XRP";
-        console.log(commaBalance)
+        // console.log(commaBalance)
         return commaBalance
     }
 
-    console.log(wallet)
+    // console.log(wallet)
     
   return (
     <div className='balance-parent-div'>

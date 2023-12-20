@@ -2,7 +2,7 @@ import './Notification.css'
 
 const Notification = ({message}) => {
 
-    console.log(message)
+    // console.log(message)
   return (
     <div className={`notification-container ${message==='' ? 'hide' : ''}`}>
         <span>{message}</span>

@@ -9,10 +9,28 @@ function EmployeeList({ employeeDataArray,setEmployee,wallet,setWallet,updateBal
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [month,setMonth] = useState((selectedDate.toLocaleString('default', { month: 'long' }))+'-'+selectedDate.getFullYear())
 
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleDateChange = date => {
     setSelectedDate(date);
     setMonth((date.toLocaleString('default', { month: 'long' }))+'-'+date.getFullYear())
   };
+
+  const addSalaryToEmployee = async (employee) => {
+    console.log('working for',employee)
+    const e = employeeDataArray.map((emp) => {
+      if(emp.xrpWalletAddress === employee.xrpWalletAddress){
+        return {
+          ...emp,
+          salary: [...emp.salary,month]
+        }
+      }
+      // console.log('returning',emp)
+      return emp
+    })
+    // console.log('checking e',e)
+    setEmployee(e)
+  }
 
   // Group employees by department
   const employeesByDepartment = employeeDataArray.reduce((acc, employee) => {
@@ -25,60 +43,100 @@ function EmployeeList({ employeeDataArray,setEmployee,wallet,setWallet,updateBal
   }, {});
 
   const handleEmployeePay = async (destination) => {
-    console.log(destination)
+    console.log('going to',destination)
+    const employee = employeeDataArray.filter((employee) => employee.xrpWalletAddress === destination)
+    if(employee[0].salary.includes(month)){
+      setMessage('already paid')
+      setTimeout(() => {
+        setMessage('')
+      },1000)
+      return
+    }
+    if(employee[0].currency !== 'XRP'){
+      setMessage('sending cross border payment')
+      setTimeout(() => {
+        setMessage('')
+      },1000)
+      await delay(1000)
+      await findPath(destination,employee[0].baseSalary)
+      return
+    }
     const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
     await client.connect()
     const company_wallet = xrpl.Wallet.fromSeed(wallet.secret)
-    setMessage('paying employee')
+    // setMessage('paying employee')
+    setMessage(`paying ${employee[0].fullName}`)
+    const amount = employee[0].baseSalary*1000000
     const prepared = await client.autofill({
       "TransactionType": "Payment",
       "Account": wallet.address,
-      "Amount": "10000000",
+      "Amount": amount.toString(),
       "Destination": destination.toString(),
     })
     const signed = company_wallet.sign(prepared)
     const tx = await client.submitAndWait(signed.tx_blob)
-    setEmployee(employeeDataArray.map((employee) => {
-      if(employee.xrpWalletAddress === destination){
-        return {
-          ...employee,
-          salary: [...employee.salary,month]
-        }
-      }
-      return employee
-    }))
+    await addSalaryToEmployee(employee[0])
+    // console.log(employeeDataArray)
     updateBalance()
     setMessage('')
     await client.disconnect()
   }
 
   const handleDepartmentPay = async (department) => {
-    const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
-    await client.connect()
-    setMessage('paying department')
-    const company_wallet = xrpl.Wallet.fromSeed(wallet.secret)
     console.log('paying department',department)
     for(var i=0;i<employeesByDepartment[department].length;i++){
-      const prepared = await client.autofill({
-        "TransactionType": "Payment",
-        "Account": wallet.address,
-        "Amount": "10000000",
-        "Destination": employeesByDepartment[department][i].xrpWalletAddress.toString(),
-      })
-      const signed = company_wallet.sign(prepared)
-      const tx = await client.submitAndWait(signed.tx_blob)
-      updateBalance()
+      await handleEmployeePay(employeesByDepartment[department][i].xrpWalletAddress)
     }
-    console.log('done')
-    setMessage('')
-    await client.disconnect()
+    console.log('done paying dept')
   }
 
-  console.log(month)
-  console.log(employeeDataArray)
+  const findPath = async (destination,amount) => {
+    setMessage('finding path and paying')
+    const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233")
+    await client.connect()
+    const destination_account = destination
+    const destination_amount = {
+      value: amount,
+      currency: 'USD',
+      issuer: wallet.address,
+    }
+    const request = {
+      command: 'ripple_path_find',
+      source_account: wallet.address,
+      source_currencies: [
+        {
+          currency: 'XRP',
+        },
+      ],
+      destination_account,
+      destination_amount,
+    }
+
+    const resp = await client.request(request)
+    console.log("Ripple Path Find response: ", resp)
+
+    const paths = resp.result.alternatives[0].paths_computed
+    console.log("Computed paths: ", paths)
+
+    const tx = {
+      TransactionType: 'Payment',
+      Account: wallet.address,
+      Amount: destination_amount,
+      Destination: destination_account,
+      Paths: paths,
+    }
+    await client.autofill(tx)
+    const signed = wallet.sign(tx)
+    await addSalaryToEmployee(employeeDataArray.filter((employee) => employee.xrpWalletAddress === destination)[0])
+    updateBalance()
+    console.log('signed:', signed)
+    await client.disconnect()
+    setMessage('')
+  }
 
   return (
     <div className='employeeList-container'>
+      {/* <button onClick={findPath}>Check cross</button> */}
       <DatePicker
         selected={selectedDate}
         onChange={handleDateChange}
@@ -91,16 +149,23 @@ function EmployeeList({ employeeDataArray,setEmployee,wallet,setWallet,updateBal
         <div key={department} className='employeeList'>
           <div className='department-container'>
             <h3>{department}</h3>
-            <button onClick={()=>handleDepartmentPay(department)}>pay</button>
+            {/* <button onClick={async ()=>{await handleDepartmentPay(department)}}
+            disabled={employeesByDepartment[department].every((employee) => employee.salary.includes(month))}
+            >pay</button> */}
           </div>
           <ul>
             {employeesByDepartment[department].map((employee, index) => {
                 {/* console.log(employee) */}
+                const use_employee = employeeDataArray.filter((emp) => emp.xrpWalletAddress === employee.xrpWalletAddress)[0]
+                {/* console.log('use for',employee.fullName,use_employee) */}
                 return (
-              <li key={index}><p>{employee.fullName}</p>
-              {employee.salary.includes(month) ? <p>paid</p> : <p>({employee.baseSalary})</p>}
+              <li key={index}><p>{use_employee.fullName}</p>
+              {use_employee.salary.includes(month) ? <p>paid</p> : <p>({use_employee.baseSalary})</p>}
               {/* <p>({employee.baseSalary})</p> */}
-              <button onClick={()=>handleEmployeePay(employee.xrpWalletAddress)}>pay</button></li>
+              <button onClick={async ()=> {await handleEmployeePay(use_employee.xrpWalletAddress)}}
+              disabled={use_employee.salary.includes(month)}
+              >pay</button>
+              </li>
             )})}
           </ul>
         </div>

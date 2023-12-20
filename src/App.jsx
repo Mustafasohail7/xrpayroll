@@ -18,8 +18,6 @@ function App() {
 
   const currencyOptions = [
     'USD',
-    'EUR',
-    'GBP',
     'XRP',
   ]
 
